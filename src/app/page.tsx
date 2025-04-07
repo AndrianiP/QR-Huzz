@@ -13,7 +13,6 @@ export default function HomePage() {
 
   const handleDownload = () => {
     if (qrRef.current !== null) {
-      console.log("QR ref", qrRef.current);
       toPng(qrRef.current, { cacheBust: true })
         .then((dataUrl: string) => {
           const link = document.createElement("a");
@@ -23,7 +22,7 @@ export default function HomePage() {
           UpdateQrCodeDB(qrValue).catch((err) => {
             console.error("Error updating DB", err);
           });
-          // redirect(dataUrl);
+          console.log("QR Code downloaded successfully");
         })
         .catch((err) => {
           console.error(err);
