@@ -1,24 +1,28 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+
 "use client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { UpdateQrCodeDB } from "@/app/api/actions/actions";
 import { useState, useRef } from "react";
 import QRCode from "react-qr-code";
 import { toPng } from "html-to-image";
-import { redirect } from "next/navigation";
 export default function HomePage() {
   const [qrValue, setQrValue] = useState<string>("https://qrhuzz.com");
-  const qrRef = useRef(null);
+  const qrRef = useRef<HTMLDivElement>(null);
 
   const handleDownload = () => {
-    
     if (qrRef.current !== null) {
       console.log("QR ref", qrRef.current);
       toPng(qrRef.current, { cacheBust: true })
-        .then((dataUrl) => {
+        .then((dataUrl: string) => {
           const link = document.createElement("a");
           link.download = `qrhuzz${Date.now()}.png`;
           link.href = dataUrl;
           link.click();
+          UpdateQrCodeDB(qrValue).catch((err) => {
+            console.error("Error updating DB", err);
+          });
           // redirect(dataUrl);
         })
         .catch((err) => {
@@ -36,17 +40,18 @@ export default function HomePage() {
           <Input
             className="onfocus:translate-y-8 placeholder:text-white/80 focus:border-green-950 focus:ring-white"
             placeholder="Enter link..."
-            onChange={(e) => setQrValue(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setQrValue(e.target.value)
+            }
             type="url"
             name="qrValue"
           />
         </div>
-        <div className="rounded-md bg-white p-4">
+        <div ref={qrRef} className="rounded-md bg-white p-4">
           <QRCode
             onClick={handleDownload}
             style={{ cursor: "pointer" }}
             size={256}
-            ref={qrRef}
             value={qrValue}
             className="rounded-md"
           />

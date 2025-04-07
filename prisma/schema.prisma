@@ -1,0 +1,31 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model QrCode {
+  id             Int               @id @default(autoincrement())
+  total_downloaded Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  downloads        QrCodeDownload[]
+
+  @@map("qr_codes")
+}
+
+model QrCodeDownload {
+  id        Int      @id @default(autoincrement())
+  qrCodeId  Int
+  qrCode    QrCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+  data      String
+  createdAt DateTime @default(now())
+
+  @@map("qr_code_downloads")
+}
